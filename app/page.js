@@ -6,6 +6,7 @@ import Link from "next/link";
 function Page() {
   const [pokemonData, setPokemonData] = useState([]);
   const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const limit = 30;
 
   const colors = {
@@ -62,44 +63,89 @@ function Page() {
     <main className="min-h-screen bg-fuchsia-400 p-20">
       <div className="w-full items-center font-mono text-sm">
         <h1 className="text-center text-2xl mb-10">POKEDEX</h1>
+
+        <div className="inline-flex">
+          <form className="max-w-md mx-auto w-[50vh] mb-10">
+            <label
+              htmlFor="default-search"
+              className="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white"
+            >
+              Search
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                <svg
+                  className="w-4 h-4 text-gray-500 dark:text-gray-400"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                  />
+                </svg>
+              </div>
+              <input
+                type="search"
+                id="default-search"
+                className="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white  "
+                placeholder="Search Pokemon"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                required
+              />
+            </div>
+          </form>
+
+          <p>test</p>
+        </div>
         <div>
           <ul className="grid grid-cols-4 gap-4">
-            {pokemonData.map((pokemon, index) => (
-              <li key={index}>
-                <Link href={`pokemon/${pokemon.name}`}>
-                  <div
-                    className="rounded overflow-hidden shadow-lg max-w-sm bg-white pb-5 h-[100%]"
-                    style={{ textAlign: "-webkit-center" }}
-                  >
-                    <img
-                      src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${
-                        index + 1
-                      }.png`}
-                      alt={pokemon.name}
-                      className="w-35 h-30 mr-4"
-                    />
-                    <span className="text-black text-base pb-10">
-                      {pokemon.name}
-                    </span>
-                    <div>
-                      <ul className="flex justify-evenly mt-5 font-semibold ">
-                        {pokemon.types.map((type, typeIndex) => (
-                          <li
-                            key={typeIndex}
-                            className="w-[100px] h-[25px] p-1  text-xs text-white rounded overflow-hidden shadow-lg max-w-sm"
-                            style={{
-                              backgroundColor: colors[type.type.name],
-                            }}
-                          >
-                            {type.type.name}
-                          </li>
-                        ))}
-                      </ul>
+            {pokemonData
+              .filter((pokemon) =>
+                pokemon.name.toLowerCase().includes(searchQuery.toLowerCase())
+              )
+              .map((pokemon, index) => (
+                <li key={index}>
+                  <Link href={`pokemon/${pokemon.name}`}>
+                    <div
+                      className="rounded overflow-hidden shadow-lg max-w-sm bg-white pb-5 h-[100%]"
+                      style={{ textAlign: "-webkit-center" }}
+                    >
+                      <img
+                        src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${
+                          index + 1
+                        }.png`}
+                        alt={pokemon.name}
+                        className="w-35 h-30 mr-4"
+                      />
+                      <span className="text-black text-base pb-10">
+                        {pokemon.name}
+                      </span>
+                      <div>
+                        <ul className="flex justify-evenly mt-5 font-semibold ">
+                          {pokemon.types.map((type, typeIndex) => (
+                            <li
+                              key={typeIndex}
+                              className="w-[100px] h-[25px] p-1  text-xs text-white rounded overflow-hidden shadow-lg max-w-sm"
+                              style={{
+                                backgroundColor: colors[type.type.name],
+                              }}
+                            >
+                              {type.type.name}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     </div>
-                  </div>
-                </Link>
-              </li>
-            ))}
+                  </Link>
+                </li>
+              ))}
           </ul>
         </div>
       </div>
