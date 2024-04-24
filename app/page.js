@@ -86,7 +86,7 @@ function Page() {
                         {pokemon.types.map((type, typeIndex) => (
                           <li
                             key={typeIndex}
-                            className="w-[50px] h-[25px] p-1  text-xs text-white rounded overflow-hidden shadow-lg max-w-sm"
+                            className="w-[100px] h-[25px] p-1  text-xs text-white rounded overflow-hidden shadow-lg max-w-sm"
                             style={{
                               backgroundColor: colors[type.type.name],
                             }}
