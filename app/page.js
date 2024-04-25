@@ -8,7 +8,7 @@ function Page() {
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortData, setSortData] = useState("asc");
-  const [sortedPokemonData, setSortedPokemonData] = useState([]);
+  const [selectedType, setSelectedType] = useState("");
   const limit = 30;
 
   const colors = {
@@ -47,20 +47,31 @@ function Page() {
         });
 
         const completePokemonData = await Promise.all(pokemonDetailsPromises);
-        const sortedData = [...completePokemonData].sort((a, b) => {
-          return sortData === "asc"
-            ? a.name.localeCompare(b.name)
-            : b.name.localeCompare(a.name);
-        });
         setPokemonData(completePokemonData);
-        setSortedPokemonData(sortedData);
       } catch (error) {
         setError(error);
       }
     };
 
     fetchData();
-  }, [sortData]);
+  }, []);
+
+  const filteredSortedPokemon = pokemonData
+    .filter((pokemon) =>
+      pokemon.name.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .filter((pokemon) =>
+      selectedType
+        ? pokemon.types.some((type) => type.type.name === selectedType)
+        : true
+    )
+    .sort((a, b) => {
+      if (sortData === "asc") {
+        return a.name.localeCompare(b.name);
+      } else {
+        return b.name.localeCompare(a.name);
+      }
+    });
 
   const handleSort = () => {
     const newSortOrder = sortData === "asc" ? "desc" : "asc";
@@ -75,8 +86,8 @@ function Page() {
       <div className="w-full items-center font-mono text-sm">
         <h1 className="text-center text-2xl mb-10">POKEDEX</h1>
 
-        <div className="inline-flex">
-          <form className="max-w-md mx-auto w-[50vh] mb-10">
+        <div className="flex">
+          <form className="max-w-md mx-auto w-full mb-10">
             <label
               htmlFor="default-search"
               className="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white"
@@ -113,8 +124,21 @@ function Page() {
             </div>
           </form>
 
+          <select
+            className=" w-full h-[50px] ml-[30px] block  p-4 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white"
+            value={selectedType}
+            onChange={(e) => setSelectedType(e.target.value)}
+          >
+            <option value="">All Types</option>
+            {Object.keys(colors).map((type, index) => (
+              <option key={index} value={type}>
+                {type.charAt(0).toUpperCase() + type.slice(1)}
+              </option>
+            ))}
+          </select>
+
           <button
-            className="h-[50px] ml-[30px] mt-[5px] bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            className="w-full h-[50px] ml-[30px]  mt-[5px] bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
             onClick={handleSort}
           >
             Sort by Name ({sortData === "asc" ? "A-Z" : "Z-A"})
@@ -122,10 +146,11 @@ function Page() {
         </div>
         <div>
           <ul className="grid grid-cols-4 gap-4">
-            {sortedPokemonData
+            {filteredSortedPokemon
               .filter((pokemon) =>
                 pokemon.name.toLowerCase().includes(searchQuery.toLowerCase())
               )
+
               .map((pokemon, index) => (
                 <li key={index}>
                   <div
