@@ -163,6 +163,7 @@ function Page() {
                           src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png`}
                           alt={pokemon.name}
                           className="w-35 h-30 mr-4"
+                          loading="lazy"
                         />
                         <h5 className="text-gray-900 text-xl leading-tight font-medium mb-2">
                           {pokemon.name}

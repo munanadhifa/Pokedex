@@ -89,6 +89,7 @@ function PokemonPage() {
           src={pokemonData.sprites.other.dream_world.front_default}
           alt={pokemonData.name}
           className="w-50 h-50 mt-[50px]"
+          loading="lazy"
         />
 
         <div>
@@ -98,6 +99,7 @@ function PokemonPage() {
                 src={pokemonData.sprites.other.showdown.front_default}
                 alt={pokemonData.name}
                 className="w-7 h-7 mr-10"
+                loading="lazy"
               />
               <h1 className="text-lg mt-0"> No {speciesData.id} </h1>
             </div>
