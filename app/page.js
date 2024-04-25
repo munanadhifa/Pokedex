@@ -7,6 +7,8 @@ function Page() {
   const [pokemonData, setPokemonData] = useState([]);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortData, setSortData] = useState("asc");
+  const [sortedPokemonData, setSortedPokemonData] = useState([]);
   const limit = 30;
 
   const colors = {
@@ -34,27 +36,36 @@ function Page() {
     const fetchData = async () => {
       try {
         const res = await fetch(
-          `https://pokeapi.co/api/v2/pokemon?limit=${limit}}`
+          `https://pokeapi.co/api/v2/pokemon?limit=${limit}`
         );
         const data = await res.json();
 
-        // Fetch additional details for each Pokémon (including types)
         const pokemonDetailsPromises = data.results.map(async (pokemon) => {
           const response = await fetch(pokemon.url);
           const pokemonDetails = await response.json();
           return pokemonDetails;
         });
 
-        // Resolve all promises and update state with the complete Pokémon data
         const completePokemonData = await Promise.all(pokemonDetailsPromises);
+        const sortedData = [...completePokemonData].sort((a, b) => {
+          return sortData === "asc"
+            ? a.name.localeCompare(b.name)
+            : b.name.localeCompare(a.name);
+        });
         setPokemonData(completePokemonData);
+        setSortedPokemonData(sortedData);
       } catch (error) {
         setError(error);
       }
     };
 
     fetchData();
-  }, []);
+  }, [sortData]);
+
+  const handleSort = () => {
+    const newSortOrder = sortData === "asc" ? "desc" : "asc";
+    setSortData(newSortOrder);
+  };
 
   if (error) return <div>Error: {error.message}</div>;
   if (!pokemonData) return <div>Loading...</div>;
@@ -102,37 +113,40 @@ function Page() {
             </div>
           </form>
 
-          <p>test</p>
+          <button
+            className="h-[50px] ml-[30px] mt-[5px] bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            onClick={handleSort}
+          >
+            Sort by Name ({sortData === "asc" ? "A-Z" : "Z-A"})
+          </button>
         </div>
         <div>
           <ul className="grid grid-cols-4 gap-4">
-            {pokemonData
+            {sortedPokemonData
               .filter((pokemon) =>
                 pokemon.name.toLowerCase().includes(searchQuery.toLowerCase())
               )
               .map((pokemon, index) => (
                 <li key={index}>
-                  <Link href={`pokemon/${pokemon.name}`}>
-                    <div
-                      className="rounded overflow-hidden shadow-lg max-w-sm bg-white pb-5 h-[100%]"
-                      style={{ textAlign: "-webkit-center" }}
-                    >
-                      <img
-                        src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${
-                          index + 1
-                        }.png`}
-                        alt={pokemon.name}
-                        className="w-35 h-30 mr-4"
-                      />
-                      <span className="text-black text-base pb-10">
-                        {pokemon.name}
-                      </span>
-                      <div>
+                  <div
+                    className="rounded overflow-hidden shadow-lg max-w-sm bg-white pb-5 h-[100%]"
+                    style={{ textAlign: "-webkit-center" }}
+                  >
+                    <Link href={`pokemon/${pokemon.name}`}>
+                      <div className="p-6">
+                        <img
+                          src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png`}
+                          alt={pokemon.name}
+                          className="w-35 h-30 mr-4"
+                        />
+                        <h5 className="text-gray-900 text-xl leading-tight font-medium mb-2">
+                          {pokemon.name}
+                        </h5>
                         <ul className="flex justify-evenly mt-5 font-semibold ">
                           {pokemon.types.map((type, typeIndex) => (
                             <li
                               key={typeIndex}
-                              className="w-[100px] h-[25px] p-1  text-xs text-white rounded overflow-hidden shadow-lg max-w-sm"
+                              className="w-[100px] h-[25px] p-1 text-xs text-white rounded overflow-hidden shadow-lg max-w-sm"
                               style={{
                                 backgroundColor: colors[type.type.name],
                               }}
@@ -142,8 +156,8 @@ function Page() {
                           ))}
                         </ul>
                       </div>
-                    </div>
-                  </Link>
+                    </Link>
+                  </div>
                 </li>
               ))}
           </ul>
